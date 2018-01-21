@@ -16,8 +16,7 @@ main(int argc, char* argv[])
 
     // Generate vector matrix
     Mat2f vector = Mat2f(gray.rows, gray.cols);
-    float x = 50;
-    vector.setTo(Vec2f(1, -1));
+    vector.setTo(cv::normalize(Vec2f(-70, -30)));
 
     // Generate kernel vector
     std::vector<float> kernel(50);
@@ -27,6 +26,7 @@ main(int argc, char* argv[])
 
     imshow("test", lic.result());
     waitKey(0);
+    // imwrite ("test.jpg", lic.result());
 
 
     return 0;
