@@ -70,16 +70,17 @@ _process(const cv::Mat& texture, const cv::Mat2f& vector,
                 point.y = point.y + mov.val[1];
 
                 if(point.x >= width) {
-                    point.x = width - 1;
+                    break;
                 } else if(point.x < 0) {
-                    point.x = 0;
+                    break;
                 }
 
                 if(point.y >= height) {
-                    point.y = height - 1;
+                    break;
                 } else if(point.y < 0) {
-                    point.y = 0;
+                    break;
                 }
+
 
                 foward_val = foward_val + texture.at<uchar>(floor(point.x),
                              floor(point.y)) * delta;
@@ -100,16 +101,16 @@ _process(const cv::Mat& texture, const cv::Mat2f& vector,
                 point.x = point.x + mov.val[0];
                 point.y = point.y + mov.val[1];
 
-                if(point.x >= width) {
-                    point.x = width - 1;
+                if(point.x > width) {
+                    break;
                 } else if(point.x < 0) {
-                    point.x = 0;
+                    break;
                 }
 
-                if(point.y >= height) {
-                    point.y = height - 1;
+                if(point.y > height) {
+                    break;
                 } else if(point.y < 0) {
-                    point.y = 0;
+                    break;
                 }
 
 
@@ -122,7 +123,7 @@ _process(const cv::Mat& texture, const cv::Mat2f& vector,
 
             // Computation
             float new_pixel_value = (foward_val + backward_val) / (forward_h + backward_h);
-            result.at<uchar>(j, i) = floor(new_pixel_value);
+            result.at<uchar>(j, i) = round(new_pixel_value);
         }
     }
 }
@@ -175,7 +176,7 @@ _get_delta(cv::Point2f& point, cv::Vec2f& vec)
 
         } else {
             // Move right directly
-            return fabs(dright / vx) * cv::norm(vec);
+            return dright;
         }
 
     } else if(vx < 0) {
@@ -208,18 +209,18 @@ _get_delta(cv::Point2f& point, cv::Vec2f& vec)
 
         } else {
             // Move left directly
-            return fabs(dleft / vx) * cv::norm(vec);
+            return dleft;
         }
 
     } else {
         // Can not move horizontal direction
         if(vy > 0) {
             // Move up
-            return fabs(dtop / vy) * cv::norm(vec);
+            return dtop;
 
         } else if(vy < 0) {
             // Move down
-            return fabs(dbottom / vy) * cv::norm(vec);
+            return dbottom;
 
         } else {
             // Cannot not move anyway
