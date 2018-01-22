@@ -30,7 +30,7 @@ main(int argc, char* argv[])
     cvtColor(texture, texture, CV_BGR2GRAY);
 
     // Generate white noise image
-    white_noise_gen wh_gen(texture);
+    white_noise_gen wh_gen(texture, 0.85);
 
     // Generate vector matrix
     // Mat2f vector = Mat2f(texture.size());

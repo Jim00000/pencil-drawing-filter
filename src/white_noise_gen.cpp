@@ -6,12 +6,13 @@
 using namespace pencil;
 using namespace cv;
 
-inline void _process(Mat& src, Mat& dst) __attribute__((always_inline));
+inline void _process(Mat& src, Mat& dst, float k) __attribute__((always_inline));
 
-white_noise_gen::white_noise_gen(Mat& src)
+white_noise_gen::white_noise_gen(Mat& src, float k)
 {
     _result = Mat(src.size(), src.type());
-    _process(src, _result);
+    _k = k;
+    _process(src, _result, _k);
 }
 
 white_noise_gen::~white_noise_gen()
@@ -26,10 +27,10 @@ white_noise_gen::result()
 }
 
 void
-_process(Mat& src, Mat& dst)
+_process(Mat& src, Mat& dst, float k)
 {
     std::default_random_engine generator;
-    std::uniform_real_distribution<float> distribution(0.0, 99.0);
+    std::uniform_real_distribution<float> distribution(0.0, 99.5 * k);
 
     for(uint i = 0; i < src.rows; i++) {
         for(uint j = 0; j < src.cols; j++) {

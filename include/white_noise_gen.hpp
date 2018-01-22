@@ -8,7 +8,7 @@ namespace pencil
     class white_noise_gen
     {
     public:
-        white_noise_gen(cv::Mat& src);
+        white_noise_gen(cv::Mat& src, float k = 1.0);
         virtual ~white_noise_gen();
 
         cv::Mat& result();
@@ -17,6 +17,7 @@ namespace pencil
 
     private:
         cv::Mat _result;
+        float _k;
     };
 }
 
