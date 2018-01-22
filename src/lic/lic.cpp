@@ -16,10 +16,6 @@ void _process(const cv::Mat& texture, const cv::Mat2f& vector,
 inline float _get_delta(cv::Point2f& point,
                         cv::Vec2f& vec) __attribute__((always_inline));
 
-inline float _get_delta_inv(cv::Point2f& point,
-                            cv::Vec2f& vec) __attribute__((always_inline));
-
-
 LIC::LIC(cv::Mat& texture, cv::Mat2f& vector, std::vector<float>& kernel)
 {
     _texture = texture.clone();
