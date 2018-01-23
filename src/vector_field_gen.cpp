@@ -27,7 +27,7 @@ float _m(Mat& gray, uint p, uint q)
     float m = 0.0f;
     for(size_t i = 0; i < gray.rows; i++) { 
         for(size_t j = 0; j < gray.cols; j++) {
-            m += 
+            // m += 
         }
     }
 }

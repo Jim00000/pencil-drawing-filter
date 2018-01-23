@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include <opencv2/opencv.hpp>
 
 using namespace std;
@@ -7,7 +8,7 @@ using namespace cv;
 int
 main(int argc, char** argv)
 {
-    Mat src = imread("/home/jim/Github/pencil-drawing-filter/sample.jpg",
+    Mat src = imread("/home/jim/Github/pencil-drawing-filter/build/sample3.png",
                      CV_LOAD_IMAGE_GRAYSCALE);
     Mat padded;
 
@@ -22,15 +23,22 @@ main(int argc, char** argv)
     dft(complexImg, complexImg);
     split(complexImg, planes);
 
-    Mat magn,angl;
+    Mat magn, angl;
     Mat output(src.size(), src.type());
-    cartToPolar(planes[0],planes[1],magn,angl,true);
+    cartToPolar(planes[0], planes[1], magn, angl, true);
 
-    for(int i = 0; i < src.rows; i++) {
-        for(int j = 0; j < src.cols; j++) {
-            cout << angl.at<float>(i, j) << endl;
-        }
-    }
+    // vector<float> angles(360);
+    // std::fill(angles.begin(), angles.end(), 0);
+    // for(int i = 0 ; i < magn.rows; i++) {
+    //     for(int j = 0 ; j < magn.cols; j++) {
+    //         int angle = round(angl.at<float>(i, j));
+    //         float mag  = round(magn.at<float>(i, j));
+    //         angles[angle] += mag;
+    //     }
+    // }
+
+    // for(int i = 0 ; i < angles.size(); i++)
+    //     cout << i << ":" << angles[i] << endl;
 
     magnitude(planes[0], planes[1],
               planes[0]); //planes[0] = sqrt((planes[0])^2 + (planes[1])^2
@@ -60,7 +68,24 @@ main(int argc, char** argv)
     normalize(magI, magI, 0, 1, CV_MINMAX);
 
     // imshow("source", src);
-    imshow("mag", magI);
+    // imshow("mag", magI);
+    // waitKey();
+
+    Mat output1;
+    cv::logPolar(magI, output1, Point2f(magI.cols / 2, magI.rows / 2), 50.0, CV_WARP_FILL_OUTLIERS);
+    Mat vec;
+    cv::reduce(output1, vec, 1, CV_REDUCE_SUM);
+    cv::Point posi, dummy;
+    double min, max;
+    cv::minMaxLoc(vec, &min, &max, &dummy, &posi);
+    cout << posi << endl;
+    cout << cx << endl;
+    cout << cy << endl;
+    // imshow("contours", output1);
+    // waitKey();
+
+
+    imshow("contours", magI);
     waitKey();
 
     return 0;
