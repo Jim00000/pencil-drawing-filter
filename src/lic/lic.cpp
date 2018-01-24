@@ -13,8 +13,8 @@ void _process(const cv::Mat& texture, const cv::Mat2f& vector,
               const std::vector<float>& kernel,
               cv::Mat& result);
 
-inline float _get_delta(cv::Point2f& point,
-                        cv::Vec2f& vec) __attribute__((always_inline));
+float _get_delta(const cv::Point2f& point, const cv::Vec2f& vec);
+float _get_delta(const float px, const float py, const float vx, const float vy);
 
 LIC::LIC(cv::Mat& texture, cv::Mat2f& vector, std::vector<float>& kernel)
 {
@@ -79,7 +79,7 @@ _process(const cv::Mat& texture, const cv::Mat2f& vector,
 
 
                 foward_val = foward_val + texture.at<uchar>(floor(point.x),
-                             floor(point.y)) * delta;
+                                                            floor(point.y)) * delta;
                 vec = vector.at<cv::Vec2f>(floor(point.x), floor(point.y));
                 forward_h += delta;
 
@@ -111,10 +111,10 @@ _process(const cv::Mat& texture, const cv::Mat2f& vector,
 
 
                 backward_val = backward_val + texture.at<uchar>(floor(point.x),
-                                floor(point.y)) * delta;
+                                                                floor(point.y)) * delta;
                 vec = vector.at<cv::Vec2f>(floor(point.x), floor(point.y)) * -1;
                 backward_h += delta;
-                
+
             }
 
             // Computation
@@ -125,22 +125,30 @@ _process(const cv::Mat& texture, const cv::Mat2f& vector,
 }
 
 float
-_get_delta(cv::Point2f& point, cv::Vec2f& vec)
+_get_delta(const cv::Point2f& point, const cv::Vec2f& vec)
 {
-    const float px = point.x;
-    const float py = point.y;
+    return _get_delta(point.x, point.y, vec.val[0], vec.val[1]);
+}
+
+float
+_get_delta(const float px, const float py, const float vx, const float vy)
+{
     const float left_bound = floor(px);
     const float right_bound = left_bound + 1;
     const float bottom_bound = floor(py);
     const float top_bound = bottom_bound + 1;
 
-    const float dtop = fabs(top_bound - py);
-    const float dbottom = fabs(py - bottom_bound);
-    const float dleft = fabs(px - left_bound);
-    const float dright = fabs(right_bound - px);
+    float dtop = fabs(top_bound - py);
+    float dbottom = fabs(py - bottom_bound);
+    float dleft = fabs(px - left_bound);
+    float dright = fabs(right_bound - px);
 
-    const float vx = vec.val[0];
-    const float vy = vec.val[1];
+    dtop = (dtop == 0) ? 1 : dtop;
+    dbottom = (dbottom == 0) ? 1 : dbottom;
+    dleft = (dleft == 0) ? 1 : dleft;
+    dright = (dright == 0) ? 1 : dright;
+
+    const cv::Vec2f vec = cv::Vec2f(vx, vy);
 
     if(vx > 0) {
         // Move right
