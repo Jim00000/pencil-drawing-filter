@@ -1,3 +1,4 @@
+#include <iostream>
 #include <cmath>
 #include <limits>
 #include <exception>
@@ -97,19 +98,19 @@ _process(const cv::Mat& texture, const cv::Mat2f& vector,
                 point.x = point.x + mov.val[0];
                 point.y = point.y + mov.val[1];
 
-                if(point.x > width) {
+                if(point.x >= width) {
                     break;
                 } else if(point.x < 0) {
                     break;
                 }
 
-                if(point.y > height) {
+                if(point.y >= height) {
                     break;
                 } else if(point.y < 0) {
                     break;
                 }
 
-
+                // std::cout << floor(point.x) << ", " << floor(point.y) << std::endl;
                 backward_val = backward_val + texture.at<uchar>(floor(point.x),
                                                                 floor(point.y)) * delta;
                 vec = vector.at<cv::Vec2f>(floor(point.x), floor(point.y)) * -1;
