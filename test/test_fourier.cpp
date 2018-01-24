@@ -1,14 +1,19 @@
 #include <iostream>
+#include <cstdio>
 #include <vector>
+#include <cmath>
 #include <opencv2/opencv.hpp>
 
 using namespace std;
 using namespace cv;
 
+float _get_delta(const cv::Point2f& point, const cv::Vec2f& vec);
+double _calcMedian(std::vector<uint> scores);
+
 int
 main(int argc, char** argv)
 {
-    Mat src = imread("/home/jim/Github/pencil-drawing-filter/build/sample3.png",
+    Mat src = imread("/home/jim/Github/pencil-drawing-filter/build/sample2.jpg",
                      CV_LOAD_IMAGE_GRAYSCALE);
     Mat padded;
 
@@ -23,34 +28,16 @@ main(int argc, char** argv)
     dft(complexImg, complexImg);
     split(complexImg, planes);
 
-    Mat magn, angl;
-    Mat output(src.size(), src.type());
-    cartToPolar(planes[0], planes[1], magn, angl, true);
-
-    // vector<float> angles(360);
-    // std::fill(angles.begin(), angles.end(), 0);
-    // for(int i = 0 ; i < magn.rows; i++) {
-    //     for(int j = 0 ; j < magn.cols; j++) {
-    //         int angle = round(angl.at<float>(i, j));
-    //         float mag  = round(magn.at<float>(i, j));
-    //         angles[angle] += mag;
-    //     }
-    // }
-
-    // for(int i = 0 ; i < angles.size(); i++)
-    //     cout << i << ":" << angles[i] << endl;
-
     magnitude(planes[0], planes[1],
               planes[0]); //planes[0] = sqrt((planes[0])^2 + (planes[1])^2
     Mat magI = planes[0];
     magI += Scalar::all(1); //magI = log(1+planes[0])
     log(magI, magI);
 
-    magI = magI(Rect(0, 0, magI.cols & -2, magI.rows & -2));  //令邊長為偶數
+    magI = magI(Rect(0, 0, magI.cols & -2, magI.rows & -2));
 
-    //將區塊重排，讓原點在影像的中央
-    int cx = magI.cols / 2;
-    int cy = magI.rows / 2;
+    const int cx = magI.cols / 2;
+    const int cy = magI.rows / 2;
 
     Mat q0(magI, Rect(0, 0, cx, cy));
     Mat q1(magI, Rect(cx, 0, cx, cy));
@@ -67,26 +54,127 @@ main(int argc, char** argv)
 
     normalize(magI, magI, 0, 1, CV_MINMAX);
 
-    // imshow("source", src);
-    // imshow("mag", magI);
+    // imshow("test", magI);
     // waitKey();
 
-    Mat output1;
-    cv::logPolar(magI, output1, Point2f(magI.cols / 2, magI.rows / 2), 50.0, CV_WARP_FILL_OUTLIERS);
-    Mat vec;
-    cv::reduce(output1, vec, 1, CV_REDUCE_SUM);
-    cv::Point posi, dummy;
-    double min, max;
-    cv::minMaxLoc(vec, &min, &max, &dummy, &posi);
-    cout << posi << endl;
-    cout << cx << endl;
-    cout << cy << endl;
-    // imshow("contours", output1);
-    // waitKey();
+    imwrite("tmp.png", magI * 255);
+    magI = imread("tmp.png", CV_LOAD_IMAGE_GRAYSCALE);
 
 
-    imshow("contours", magI);
+    cv::fastNlMeansDenoising(magI, magI, 14);
+    Mat newimg(magI.size(), magI.type());
+    float alpha = 12;
+    float beta = -1500;
+
+    for(int i = 0 ; i < magI.rows; i++) {
+        for(int j = 0; j < magI.cols; j++) {
+            magI.at<uchar>(i, j) = saturate_cast<uchar>(magI.at<uchar>(i,
+                                                                       j) * alpha + beta);
+        }
+    }
+
+    // cv::fastNlMeansDenoising(magI, magI, 15.0);
+
+    imshow("spectrum", magI);
     waitKey();
 
+    /* experiment */
+
+    Mat veri = Mat(magI.rows, magI.cols, CV_8UC3, Scalar(0));
+    const float max_length = magI.rows / 2;
+    size_t total = 180;
+    vector<uint> angles(total);
+    const float uint_inc = 180.0 / static_cast<float>(total);
+
+    for(float i = 0; i < total; i += uint_inc) {
+        Point2f point(cx + 0.5, cy + 0.5);
+        Point2f basic(cx + 0.5, cy + 0.5);
+        Vec2f vec(cos(uint_inc * i * M_PI / 180), sin(uint_inc * i * M_PI / 180));
+        uint energy = magI.at<uchar>(cx, cy);
+
+        // Add forward streamline energy
+        while(true) {
+            float delta = _get_delta(point, vec);
+            point.x += vec.val[0] * delta;
+            point.y += vec.val[1] * delta;
+
+            float dst = cv::norm(basic - point);
+            if(dst > max_length)
+                break;
+
+            if(point.x < magI.cols && point.x >= 0 && point.y < magI.rows && point.y >= 0) {
+                energy += magI.at<uchar>(floor(point.x), floor(point.y));
+                Point _p = Point(floor(point.x), floor(point.y));
+                cv::line(veri, _p, _p, Scalar(255, 0, 0), 1);
+            } else {
+                break;
+            }
+        }
+
+        point = Point2f(cx + 0.5, cy + 0.5);
+        vec *= -1;
+        // Add backward streamline energy
+        while(true) {
+            float delta = _get_delta(point, vec);
+            point.x += vec.val[0] * delta;
+            point.y += vec.val[1] * delta;
+
+            float dst = cv::norm(basic - point);
+            if(dst > max_length)
+                break;
+
+            if(point.x < magI.cols && point.x >= 0 && point.y < magI.rows && point.y >= 0) {
+                energy += magI.at<uchar>(floor(point.x), floor(point.y));
+                Point _p = Point(floor(point.x), floor(point.y));
+                cv::line(veri, _p, _p, Scalar(255, 0, 0), 1);
+            } else {
+                break;
+            }
+        }
+
+        angles[i] = energy;
+    }
+
+    double avg = 0;
+    double max = 0;
+    double sel_angle = 0;
+    for(size_t i = 0; i < total; i++) {
+        printf("angle %.2f : %-u\n", 180 - i * uint_inc, angles[i]);
+        avg += angles[i];
+        if(angles[i] > max) {
+            max = angles[i];
+            sel_angle = 180 - i * uint_inc;
+        }
+    }
+
+    avg /= total;
+    // avg = _calcMedian(angles);
+    cout << "Average : " << avg << endl;
+    cout << "Max : " << max << endl;
+    cout << "Angle : " << sel_angle << endl;
+    cout << "Threshold factor : " << 1 - avg / max  << endl;
+
+    imshow("spectrum", veri);
+    waitKey();
+
+    /* experiment */
+
     return 0;
+}
+
+double
+_calcMedian(std::vector<uint> scores)
+{
+    double median;
+    size_t size = scores.size();
+
+    sort(scores.begin(), scores.end());
+
+    if (size  % 2 == 0) {
+        median = (scores[size / 2 - 1] + scores[size / 2]) / 2;
+    } else {
+        median = scores[size / 2];
+    }
+
+    return median;
 }
