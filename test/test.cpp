@@ -32,7 +32,8 @@ main(int argc, char** argv)
     Mat dst;
     Mat output(src.size(), CV_8UC3);
 
-    Ptr<GraphSegmentation> gs = createGraphSegmentation(0.6, 3000.0f, 150);
+    // Ptr<GraphSegmentation> gs = createGraphSegmentation(0.6, 3000.0f, 150);
+    Ptr<GraphSegmentation> gs = createGraphSegmentation(0.3, 3000.0f, 150);
     gs->processImage(src, dst);
 
     double min = 0, max = 0;

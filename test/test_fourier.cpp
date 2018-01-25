@@ -81,7 +81,7 @@ main(int argc, char** argv)
     /* experiment */
 
     Mat veri = Mat(magI.rows, magI.cols, CV_8UC3, Scalar(0));
-    const float max_length = magI.rows / 2;
+    const float max_length = std::min(magI.rows / 2, magI.cols / 2);
     size_t total = 180;
     vector<uint> angles(total);
     const float uint_inc = 180.0 / static_cast<float>(total);

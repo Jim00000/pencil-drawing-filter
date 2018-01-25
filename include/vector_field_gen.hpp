@@ -10,9 +10,12 @@ namespace pencil
         public:
             vector_field_gen(cv::Mat& src);
             virtual ~vector_field_gen();
-            cv::Mat& vector_field();
+            cv::Mat2f& vector_field();
             
         protected:
+            virtual void _process(const cv::Mat& src, const cv::Mat& seg, cv::Mat2f& vector_field);
+            virtual void _fill_vector(const cv::Mat& src, const cv::Mat& seg, cv::Mat2f& vector_field, const uint idx);
+            virtual void _tweak_frequency_spectrum(cv::Mat& freq);
 
         private:
             cv::Mat2f _vector_field;
