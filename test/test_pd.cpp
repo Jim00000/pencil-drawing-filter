@@ -15,7 +15,7 @@ int
 main(int argc, char* argv[])
 {
     // Load image
-    Mat texture = imread("/home/jim/Github/pencil-drawing-filter/build/output/sample2.jpg");
+    Mat texture = imread("/home/jim/Github/pencil-drawing-filter/build/output/sample5.jpg");
     cvtColor(texture, texture, CV_BGR2GRAY);
 
     // Generate white noise image
