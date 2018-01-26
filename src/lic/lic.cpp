@@ -1,3 +1,21 @@
+/*
+    pencil-drawing-filter project implements an pencil drawing filter
+    Copyright (C) 2018  Jim00000
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include <iostream>
 #include <cmath>
 #include <limits>
@@ -15,7 +33,8 @@ void _process(const cv::Mat& texture, const cv::Mat2f& vector,
               cv::Mat& result);
 
 float _get_delta(const cv::Point2f& point, const cv::Vec2f& vec);
-float _get_delta(const float px, const float py, const float vx, const float vy);
+float _get_delta(const float px, const float py, const float vx,
+                 const float vy);
 
 LIC::LIC(cv::Mat& texture, cv::Mat2f& vector, std::vector<float>& kernel)
 {
@@ -26,7 +45,7 @@ LIC::LIC(cv::Mat& texture, cv::Mat2f& vector, std::vector<float>& kernel)
 
     // Tweak the vector (This is a bug need to be fixed)
     for(size_t i = 0; i < _vector.rows; i++) {
-        for(size_t j = 0; j < _vector.cols; j++){
+        for(size_t j = 0; j < _vector.cols; j++) {
             float x = _vector.at<cv::Vec2f>(i, j).val[0];
             float y = _vector.at<cv::Vec2f>(i, j).val[1];
             _vector.at<cv::Vec2f>(i, j).val[0] = y;
