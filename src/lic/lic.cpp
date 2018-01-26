@@ -23,6 +23,17 @@ LIC::LIC(cv::Mat& texture, cv::Mat2f& vector, std::vector<float>& kernel)
     _vector = vector.clone();
     _kernel = kernel;
     _result = cv::Mat::zeros(texture.size(), texture.type());
+
+    // Tweak the vector (This is a bug need to be fixed)
+    for(size_t i = 0; i < _vector.rows; i++) {
+        for(size_t j = 0; j < _vector.cols; j++){
+            float x = _vector.at<cv::Vec2f>(i, j).val[0];
+            float y = _vector.at<cv::Vec2f>(i, j).val[1];
+            _vector.at<cv::Vec2f>(i, j).val[0] = y;
+            _vector.at<cv::Vec2f>(i, j).val[1] = x;
+        }
+    }
+
     _process(_texture, _vector, _kernel, _result);
 }
 
