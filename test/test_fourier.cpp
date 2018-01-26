@@ -13,7 +13,7 @@ double _calcMedian(std::vector<uint> scores);
 int
 main(int argc, char** argv)
 {
-    Mat src = imread("/home/jim/Github/pencil-drawing-filter/build/sample2.jpg",
+    Mat src = imread("/home/jim/Github/pencil-drawing-filter/resources/sample.jpg",
                      CV_LOAD_IMAGE_GRAYSCALE);
     Mat padded;
 

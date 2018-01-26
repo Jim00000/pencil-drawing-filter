@@ -6,7 +6,7 @@ using namespace cv;
 int
 main(int argc, char* argv[])
 {
-    Mat src = imread("/home/jim/Github/pencil-drawing-filter/sample.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+    Mat src = imread("/home/jim/Github/pencil-drawing-filter/resources/sample.jpg", CV_LOAD_IMAGE_GRAYSCALE);
     float ksize = 5;
     GaussianBlur(src, src, Size(ksize, ksize), 0, 0);
 
