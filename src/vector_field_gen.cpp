@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <omp.h>
 #include "opencv2/ximgproc/segmentation.hpp"
 #include "vector_field_gen.hpp"
 
@@ -28,7 +29,7 @@ vector_field_gen::vector_field_gen(Mat& src)
     Mat segmentation;
 
     // Ptr<GraphSegmentation> gs = createGraphSegmentation(0.6, 3000.0f, 150);
-    Ptr<GraphSegmentation> gs = createGraphSegmentation(0.3, 3000.0f, 150);
+    Ptr<GraphSegmentation> gs = createGraphSegmentation(0.4, 3000.0f, 150);
     gs->processImage(src, segmentation);
 
     _process(src, segmentation, _vector_field);
@@ -52,6 +53,7 @@ vector_field_gen::_process(const Mat& src, const Mat& seg, Mat2f& vector_field)
     cv::minMaxLoc(seg, nullptr, &maxvalue_d);
     size_t maxvalue = static_cast<size_t>(maxvalue_d);
 
+    #pragma omp parallel for shared(src, seg, vector_field)
     for(size_t k = 0; k <= maxvalue; k++) {
         Mat buffer = src.clone();
 
