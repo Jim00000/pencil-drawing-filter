@@ -75,7 +75,7 @@ _process(const cv::Mat& texture, const cv::Mat2f& vector,
     uint height = static_cast<uint>(texture.cols);
     uint width = static_cast<uint>(texture.rows);
 
-    #pragma omp parallel for collapse(2)
+    // #pragma omp parallel for collapse(2)
     for(uint i = 0; i < height; i++) {
         for (uint j = 0; j < width; j++) {
             const uint x = j;
@@ -91,6 +91,9 @@ _process(const cv::Mat& texture, const cv::Mat2f& vector,
 
             for(uint k = 0; k < kernel.size(); k++) {
                 float delta = _get_delta(point, vec);
+                if(delta == std::numeric_limits<float>::infinity()) {
+                    break;
+                }
                 cv::Vec2f norm_v2 = cv::normalize(vec);
                 cv::Vec2f mov = norm_v2 * delta;
                 point.x = point.x + mov.val[0];
@@ -123,6 +126,9 @@ _process(const cv::Mat& texture, const cv::Mat2f& vector,
 
             for(uint k = 0; k < kernel.size(); k++) {
                 float delta = _get_delta(point, vec);
+                if(delta == std::numeric_limits<float>::infinity()) {
+                    break;
+                }
                 cv::Vec2f norm_v2 = cv::normalize(vec);
                 cv::Vec2f mov = norm_v2 * delta;
                 point.x = point.x + mov.val[0];
@@ -149,8 +155,13 @@ _process(const cv::Mat& texture, const cv::Mat2f& vector,
             }
 
             // Computation
-            float new_pixel_value = (foward_val + backward_val) / (forward_h + backward_h);
-            result.at<uchar>(j, i) = round(new_pixel_value);
+            float h = forward_h + backward_h;
+            if(h == 0) {
+                result.at<uchar>(j, i) = 255;
+            } else {
+                float new_pixel_value = (foward_val + backward_val) / h;
+                result.at<uchar>(j, i) = round(new_pixel_value);
+            }
         }
     }
 }

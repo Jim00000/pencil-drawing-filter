@@ -19,6 +19,7 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <exception>
 #include <omp.h>
 #include "opencv2/ximgproc/segmentation.hpp"
 #include "vector_field_gen.hpp"
@@ -100,7 +101,15 @@ vector_field_gen::_fill_vector(const cv::Mat& src, const cv::Mat& seg,
     // waitKey();
     _tweak_frequency_spectrum(freq);
     double angle = 0;
-    bool explicit_direction = _analyze_maximal_energy(freq, &angle);
+    bool explicit_direction; 
+    try {
+    explicit_direction = _analyze_maximal_energy(freq, &angle);
+    } catch(std::runtime_error e) {
+        angle = 0;
+        explicit_direction = true;
+        _fill(0, 0, vector_field, seg, idx);
+        return;
+    }
     // imshow("test", freq);
     // waitKey();
     if(explicit_direction == true) {
@@ -278,6 +287,10 @@ _analyze_maximal_energy(const Mat src, double* angle)
             max = angles[i];
             sel_angle = 180 - i * uint_inc;
         }
+    }
+
+    if(max == 0) {
+        throw std::runtime_error("Error! Divide by zero");
     }
 
     avg /= total;
