@@ -19,6 +19,7 @@
 #include <iostream>
 #include <limits>
 #include <random>
+#include <cmath>
 #include "lic/lic.hpp"
 #include "white_noise_gen.hpp"
 #include "vector_field_gen.hpp"
@@ -33,14 +34,25 @@ int
 main(int argc, char* argv[])
 {
     // Load image
-    Mat texture = imread("/home/jim/Github/pencil-drawing-filter/build/output/sample5.jpg");
-    cvtColor(texture, texture, CV_BGR2GRAY);
+    Mat src =
+        imread("input/sample9.jpg");
+    Mat texture;
+    cvtColor(src, texture, CV_BGR2GRAY);
+
+    // const float gamma = 1.0;
+    // const float invGamma = 1.0f / gamma;
+    // for(size_t i = 0; i < texture.rows; i++) {
+    //     for(size_t j = 0; j < texture.cols; j++) {
+    //         texture.at<uchar>(i, j) = saturate_cast<uchar>(pow(static_cast<float>
+    //                                                            (texture.at<uchar>(i, j)) / 255.0f, invGamma) * 255.0f);
+    //     }
+    // }
 
     // Generate white noise image
-    white_noise_gen wh_gen(texture, 0.8);
+    white_noise_gen wh_gen(texture, 1.00);
 
     // Generate kernel vector
-    std::vector<float> kernel(8);
+    std::vector<float> kernel(6);
     std::fill(kernel.begin(), kernel.end(), 1);
 
     // Generate vector field from an image
@@ -48,7 +60,7 @@ main(int argc, char* argv[])
 
     LIC lic(wh_gen.result(), vf.vector_field(), kernel);
 
-    border edge(texture);
+    border edge(src);
 
     Mat drawing, output;
     combiner::combine_foreground_and_background(edge.result() ,lic.result(), drawing);
@@ -57,7 +69,7 @@ main(int argc, char* argv[])
     Mat paper = imread("/home/jim/Github/pencil-drawing-filter/resources/paper.jpg", CV_LOAD_IMAGE_GRAYSCALE);
     Mat ext_paper;
     combiner::extend_file(paper, ext_paper, drawing.size());
-    combiner::combine_image_by_weight(drawing, ext_paper, output, 0.75);
+    combiner::combine_image_by_weight(drawing, ext_paper, output, 0.8);
 
     imshow("test", output);
     waitKey(0);

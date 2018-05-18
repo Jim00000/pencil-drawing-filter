@@ -26,11 +26,11 @@ namespace pencil
     class border
     {
     public:
-        border(const cv::Mat& src);
+        border(cv::Mat& src);
         virtual ~border();
         cv::Mat& result();
     protected:
-        virtual void _process(const cv::Mat& src, cv::Mat& result);
+        virtual void _process(cv::Mat& src, cv::Mat& result);
     private:
         cv::Mat _result;
     };

@@ -101,9 +101,9 @@ vector_field_gen::_fill_vector(const cv::Mat& src, const cv::Mat& seg,
     // waitKey();
     _tweak_frequency_spectrum(freq);
     double angle = 0;
-    bool explicit_direction; 
+    bool explicit_direction;
     try {
-    explicit_direction = _analyze_maximal_energy(freq, &angle);
+        explicit_direction = _analyze_maximal_energy(freq, &angle);
     } catch(std::runtime_error e) {
         angle = 0;
         explicit_direction = true;
