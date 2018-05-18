@@ -27,9 +27,11 @@ In this moment, the user interface has not been done yet
 ## Demo
 
 ![demo_image_1](resources/demo/sample.jpg)
-![demo_image_1_output](resources/demo/sample_output.jpg)
+![demo_image_1_output](resources/demo/sample_output.png)
 ![demo_image_2](resources/demo/sample2.jpg)
-![demo_image_2_output](resources/demo/sample2_output.jpg)
+![demo_image_2_output](resources/demo/sample2_output.png)
+![demo_image_3](resources/demo/sample3.jpg)
+![demo_image_3_output](resources/demo/sample3_output.png)
 
 ## References
 
@@ -37,6 +39,7 @@ In this moment, the user interface has not been done yet
 - [Enanced pencil filter](http://ieeexplore.ieee.org/document/1323994/)
 - [Imaging Vector Fields Using Line Integral Convolution](https://dl.acm.org/citation.cfm?id=166151)
 - [Texture Synthesis with Line Integral Convolution](http://www.dcs.ed.ac.uk/teaching/cs4/www/visualisation/SIGGRAPH/lic.pdf)
+- [sketch filter](https://github.com/Jim00000/sketch-filter)
 
 ## License
 
