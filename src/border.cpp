@@ -37,7 +37,7 @@ border::~border()
 void
 border::_process(Mat& src, Mat& result)
 {
-    sketch::edge_feature_filter edge(3, 200);
+    sketch::edge_feature_filter edge(3, 210);
     edge.process(src, result);
     cv::bitwise_not(result, result);
     result *= 0.2;

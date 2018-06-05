@@ -19,6 +19,7 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <map>
 #include <exception>
 #include <omp.h>
 #include "opencv2/ximgproc/segmentation.hpp"
@@ -49,6 +50,7 @@ vector_field_gen::vector_field_gen(Mat& src)
 
     // Ptr<GraphSegmentation> gs = createGraphSegmentation(0.6, 3000.0f, 150);
     Ptr<GraphSegmentation> gs = createGraphSegmentation(0.4, 3000.0f, 150);
+    // Ptr<GraphSegmentation> gs = createGraphSegmentation(0.2, 1000.0f, 150);
     gs->processImage(src, segmentation);
 
     _process(src, segmentation, _vector_field);
@@ -92,32 +94,90 @@ void
 vector_field_gen::_fill_vector(const cv::Mat& src, const cv::Mat& seg,
                                cv::Mat2f& vector_field, const uint idx)
 {
-    // Get the image's frequency spectrum
-    Mat freq;
-    _get_frequency_spectrum(src, freq);
-    // Convert from double type to uchar type
-    freq.convertTo(freq, CV_8UC1, 255);
-    // imshow("test", freq);
-    // waitKey();
-    _tweak_frequency_spectrum(freq);
-    double angle = 0;
-    bool explicit_direction;
-    try {
-        explicit_direction = _analyze_maximal_energy(freq, &angle);
-    } catch(std::runtime_error e) {
-        angle = 0;
-        explicit_direction = true;
-        _fill(0, 0, vector_field, seg, idx);
-        return;
+    Mat ssrc = src.clone();
+
+    for(size_t i = 0; i < ssrc.rows; i++) {
+        for(size_t j = 0; j < ssrc.cols; j++) {
+            if(seg.at<int>(i, j) != idx) {
+                ssrc.at<uchar>(i, j) = 0;
+            }
+        }
     }
-    // imshow("test", freq);
-    // waitKey();
+
+    Mat padded;
+
+    int m = getOptimalDFTSize(ssrc.rows);
+    int n = getOptimalDFTSize(ssrc.cols);
+    copyMakeBorder(ssrc, padded, 0, m - ssrc.rows, 0, n - ssrc.cols, BORDER_CONSTANT, Scalar::all(0));
+
+    Mat planes[] = {Mat_<float>(padded), Mat::zeros(padded.size(), CV_32F)};
+    Mat complexImg;
+    merge(planes, 2, complexImg);
+    dft(complexImg, complexImg);
+    split(complexImg, planes);
+
+    Mat magni_Mat, theta_Mat;
+    cv::cartToPolar(planes[0], planes[1], magni_Mat, theta_Mat);
+    Mat angle_Mat = theta_Mat.t() * 180.0 / CV_PI;
+
+    std::map<size_t, double> anglemap;
+    for(size_t i = 0; i < 360; i++) {
+        anglemap[i] = 0.0;
+    }
+
+    for(int i = 0; i < angle_Mat.rows; i++) {
+        for(int j = 0; j < angle_Mat.cols; j++) {
+            float rawangle = angle_Mat.at<float>(i, j);
+            size_t angle = std::round(rawangle);
+            anglemap[angle] += magni_Mat.at<float>(i, j);
+        }
+    }
+
+    double angle = 0;
+    double maxval = 0;
+    double totalval = 0;
+
+    for(size_t i = 0; i < 360; i++) {
+        totalval += anglemap[i];
+        if(anglemap[i] > maxval) {
+            maxval = anglemap[i];
+            angle = i;
+        }
+    }
+
+    bool explicit_direction = false;
+
+    if(totalval != 0.0) {
+        if(maxval / totalval >= 0.5) {
+            explicit_direction = true;
+        }
+    } else {
+        explicit_direction = false;
+    }
+
+    // Get the image's frequency spectrum
+    // Mat freq;
+    // _get_frequency_spectrum(src, freq);
+    // Convert from double type to uchar type
+    // freq.convertTo(freq, CV_8UC1, 255);
+    // _tweak_frequency_spectrum(freq);
+    // double angle = 0;
+    // bool explicit_direction;
+    // try {
+    //     explicit_direction = _analyze_maximal_energy(freq, &angle);
+    // } catch(std::runtime_error e) {
+    //     angle = 0;
+    //     explicit_direction = true;
+    //     _fill(0, 0, vector_field, seg, idx);
+    //     return;
+    // }
     if(explicit_direction == true) {
-        float theta = angle * M_PI / 180;
+        float theta = angle * CV_PI / 180.0;
         float vx = cos(theta);
         float vy = sin(theta);
         _fill(vx, vy, vector_field, seg, idx);
-    } else {
+    }
+    else {
         float theta = 0.5f * atan(2 * _u_pq(src, seg, idx, 1, 1) / ( _u_pq(src, seg,
                                                                            idx, 2, 0) - _u_pq(src, seg, idx, 0, 2) ) );
         float vx = cos(theta);
@@ -249,7 +309,8 @@ _analyze_maximal_energy(const Mat src, double* angle)
 
             if(point.x < src.cols && point.x >= 0 && point.y < src.rows && point.y >= 0) {
                 energy += src.at<uchar>(floor(point.x), floor(point.y));
-            } else {
+            }
+            else {
                 break;
             }
         }
@@ -268,7 +329,8 @@ _analyze_maximal_energy(const Mat src, double* angle)
 
             if(point.x < src.cols && point.x >= 0 && point.y < src.rows && point.y >= 0) {
                 energy += src.at<uchar>(floor(point.x), floor(point.y));
-            } else {
+            }
+            else {
                 break;
             }
         }

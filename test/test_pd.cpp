@@ -35,7 +35,7 @@ main(int argc, char* argv[])
 {
     // Load image
     Mat src =
-        imread("input/sample9.jpg");
+        imread(argv[1]);
     Mat texture;
     cvtColor(src, texture, CV_BGR2GRAY);
 
@@ -49,10 +49,10 @@ main(int argc, char* argv[])
     // }
 
     // Generate white noise image
-    white_noise_gen wh_gen(texture, 1.00);
+    white_noise_gen wh_gen(texture, 0.91);
 
     // Generate kernel vector
-    std::vector<float> kernel(6);
+    std::vector<float> kernel(4);
     std::fill(kernel.begin(), kernel.end(), 1);
 
     // Generate vector field from an image
@@ -66,7 +66,7 @@ main(int argc, char* argv[])
     combiner::combine_foreground_and_background(edge.result() ,lic.result(), drawing);
     drawing.convertTo(drawing, CV_8UC1);
 
-    Mat paper = imread("/home/jim/Github/pencil-drawing-filter/resources/paper.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+    Mat paper = imread("/home/jim/Github/pencil-drawing-filter-v2/resources/paper.jpg", CV_LOAD_IMAGE_GRAYSCALE);
     Mat ext_paper;
     combiner::extend_file(paper, ext_paper, drawing.size());
     combiner::combine_image_by_weight(drawing, ext_paper, output, 0.8);

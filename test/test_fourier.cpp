@@ -16,10 +16,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
 #include <cstdio>
-#include <vector>
 #include <cmath>
+#include <iostream>
+#include <vector>
+#include <map>
 #include <opencv2/opencv.hpp>
 
 using namespace std;
@@ -31,8 +32,7 @@ double _calcMedian(std::vector<uint> scores);
 int
 main(int argc, char** argv)
 {
-    Mat src = imread("/home/jim/Github/pencil-drawing-filter/resources/sample.jpg",
-                     CV_LOAD_IMAGE_GRAYSCALE);
+    Mat src = imread(argv[1], CV_LOAD_IMAGE_GRAYSCALE);
     Mat padded;
 
     int m = getOptimalDFTSize(src.rows);
@@ -45,6 +45,37 @@ main(int argc, char** argv)
     merge(planes, 2, complexImg);
     dft(complexImg, complexImg);
     split(complexImg, planes);
+
+    ///DEBUG
+
+    Mat mag, angle;
+    cv::cartToPolar(planes[0], planes[1], mag, angle);
+    // cout << mag.t() << endl;
+    // cout << "\nangle: " << angle.t() * 180.0 / CV_PI << endl;
+
+    std::map<size_t, double> magmap;
+
+    for(size_t i = 0; i < 360; i++) {
+        magmap[i] = 0.0;
+    }
+
+    Mat ccc = angle.t() * 180.0 / CV_PI;
+
+    for(int i = 0; i < 720; i++) {
+        for(int j = 0; j < 720; j++) {
+            // cout << std::round(ccc.at<float>(i, j)) << endl;
+            size_t ang = std::round(ccc.at<float>(i, j));
+            magmap[ang] += mag.at<float>(i, j); 
+        }
+    }
+
+    for(size_t i = 0; i < 360; i++) {
+        cout << i << " : " << magmap[i] << endl;
+    }
+
+    ///DEBUG
+    return 0;
+    
 
     magnitude(planes[0], planes[1],
               planes[0]); //planes[0] = sqrt((planes[0])^2 + (planes[1])^2
@@ -124,7 +155,8 @@ main(int argc, char** argv)
                 energy += magI.at<uchar>(floor(point.x), floor(point.y));
                 Point _p = Point(floor(point.x), floor(point.y));
                 cv::line(veri, _p, _p, Scalar(255, 0, 0), 1);
-            } else {
+            }
+            else {
                 break;
             }
         }
@@ -145,7 +177,8 @@ main(int argc, char** argv)
                 energy += magI.at<uchar>(floor(point.x), floor(point.y));
                 Point _p = Point(floor(point.x), floor(point.y));
                 cv::line(veri, _p, _p, Scalar(255, 0, 0), 1);
-            } else {
+            }
+            else {
                 break;
             }
         }
@@ -190,7 +223,8 @@ _calcMedian(std::vector<uint> scores)
 
     if (size  % 2 == 0) {
         median = (scores[size / 2 - 1] + scores[size / 2]) / 2;
-    } else {
+    }
+    else {
         median = scores[size / 2];
     }
 
