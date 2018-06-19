@@ -13,10 +13,13 @@ At first, make sure your computer has libraries listed bleow
 and use CMake to build this project
 
 ```
+$ git clone https://github.com/Jim00000/pencil-drawing-filter
 $ cd pencil-drawing-filter
+$ git submodule init
+$ git submodule update
 $ mkdir build
 $ cd build
-$ cmake -DCMAKE_BUILD_TYPE=RELEASE ..
+$ cmake ..  # or use cmake-gui ..
 $ make
 ``` 
 
