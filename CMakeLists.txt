@@ -6,6 +6,11 @@ set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g")
 set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Setting build type to 'Debug' as none was specified.")
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
 
 find_package (OpenCV REQUIRED)
 if (OpenCV_FOUND)
@@ -19,21 +24,9 @@ if (OpenMP_FOUND)
 endif ()
 
 include (ExternalProject)
-
-ExternalProject_Add(sketch-filter
-    GIT_REPOSITORY https://github.com/Jim00000/sketch-filter
-    PREFIX ${CMAKE_BINARY_DIR}/external
-    INSTALL_COMMAND ""
-    CMAKE_ARGS -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda-9.1 # Potential bugs. Fix it
-    -DCMAKE_BUILD_TYPE=RELEASE
-)
-
-include_directories (${CMAKE_BINARY_DIR}/external/src/sketch-filter/include)
+include_directories (thirdparty/sketch-filter/include)
 include_directories (include/)
-link_directories (${CMAKE_BINARY_DIR}/external/src/sketch-filter-build/lib)
+
+add_subdirectory (thirdparty/sketch-filter/)
 add_subdirectory (src/)
 add_subdirectory (test/)
-
-
-# include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
-# link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)

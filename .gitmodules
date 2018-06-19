@@ -1,0 +1,4 @@
+[submodule "thirdparty/sketch-filter"]
+	path = thirdparty/sketch-filter
+	url = https://github.com/Jim00000/sketch-filter
+	branch = library-only
