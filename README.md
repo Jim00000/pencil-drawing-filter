@@ -27,6 +27,10 @@ $ make
 
 In this moment, the user interface has not been done yet
 
+You can execute test-pd binary with an input image filepath argument If you wanna try it out
+
+`$ test-pd image-filepath`
+
 ## Demo
 
 ![demo_image_1](resources/demo/sample.jpg)
