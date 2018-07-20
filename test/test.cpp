@@ -20,6 +20,7 @@
 #include "opencv2/ximgproc/segmentation.hpp"
 #include <iostream>
 #include <vector>
+#include <random>
 #include <ctime>
 
 using namespace std;
