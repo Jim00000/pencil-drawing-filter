@@ -66,7 +66,7 @@ main(int argc, char* argv[])
     combiner::combine_foreground_and_background(edge.result() ,lic.result(), drawing);
     drawing.convertTo(drawing, CV_8UC1);
 
-    Mat paper = imread("/home/jim/Github/pencil-drawing-filter-v2/resources/paper.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+    Mat paper = imread("texture/paper.jpg", CV_LOAD_IMAGE_GRAYSCALE);
     Mat ext_paper;
     combiner::extend_file(paper, ext_paper, drawing.size());
     combiner::combine_image_by_weight(drawing, ext_paper, output, 0.8);
