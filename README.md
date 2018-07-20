@@ -10,6 +10,13 @@ At first, make sure your computer has libraries listed bleow
 - OpenCV
 - OpenCV-contrib
 
+### Ubuntu
+
+```
+$ sudo apt-get install cmake ＃ You can also install cmake-qt-gui
+$ sudo apt-get install libopencv-dev
+```
+
 and use CMake to build this project
 
 ```
@@ -29,7 +36,7 @@ In this moment, the user interface has not been done yet
 
 You can execute test-pd binary with an input image filepath argument If you wanna try it out
 
-`$ test-pd image-filepath`
+`$ ./test-pd <image-filepath>`
 
 ## Demo
 
